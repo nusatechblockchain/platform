@@ -1,0 +1,152 @@
+version: '3.6'
+
+services:
+  exchange:
+    restart: always
+    image: "<%= @config['images']['exchange'] %>"
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['root_token'] %>
+    env_file:
+      - ../config/kaigara.env
+      - ../config/exchange.env
+    volumes:
+      - ../config/exchange/seed:/opt/exchange/config/seed
+      - ../config/exchange/management_api_v1.yml:/opt/exchange/config/management_api.yml
+      - ../config/exchange/plugins.yml:/opt/exchange/config/plugins.yml
+      - ../config/exchange/abilities.yml:/opt/exchange/config/abilities.yml
+    labels: {}
+    command: bash -c "bin/link_config && kaigara bundle exec puma --config config/puma.rb"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  account:
+    restart: always
+    image: "<%= @config['images']['account'] %>"
+    environment:
+      - ACCOUNT_VAULT_TOKEN=<%= @config['vault']['account_token'] %>
+    env_file:
+      - ../config/kaigara.env
+      - ../config/account.env
+    volumes:
+      - ../config/secrets:/secrets:ro
+      - ../config/account/seeds.yml:/home/app/config/seeds.yml
+      - ../config/account/account.yml:/home/app/config/account.yml
+      - ../config/account/authz_rules.yml:/home/app/config/authz_rules.yml
+      - ../config/account/management_api.yml:/home/app/config/management_api.yml
+      - ../config/account/abilities.yml:/home/app/config/abilities.yml
+    command: bash -c "kaigara bundle exec puma --config config/puma.rb"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  applogic:
+    restart: always
+    image: "<%= @utils['images']['applogic'] %>"
+    env_file:
+      - ../config/applogic.env
+      - ../config/kaigara.env
+    volumes:
+      - ../config/applogic/management_api_v2.yml:/home/app/config/management_api_v2.yml
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  mobile:
+    restart: always
+    image: "<%= @config['images']['mobile'] %>"
+    labels:
+      - "traefik.http.routers.mobile-<%= @name %>.rule=Host(`mobile.<%= @config['app']['domain'] %>`) && PathPrefix(`/`)"
+      - "traefik.enable=true"
+      - "traefik.http.services.mobile-<%= @name %>.loadbalancer.server.port=5001"
+      <%- if @config['ssl']['enabled'] -%>
+      - "traefik.http.routers.mobile-<%= @name %>.entrypoints=websecure"
+      - "traefik.http.routers.mobile-<%= @name %>.tls=true"
+      - "traefik.http.routers.mobile-<%= @name %>.tls.certresolver=myresolver"
+      <%- else -%>
+      - "traefik.http.routers.mobile-<%= @name %>.entrypoints=web"
+      <%- end -%>
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  tower:
+    restart: always
+    image: "<%= @config['images']['tower'] %>"
+    expose:
+      - "8080"
+    volumes:
+      - /data/source/images/app:/home/app
+    labels:
+      - "traefik.http.routers.tower-<%= @name %>.rule=Host(`<%= @config['app']['subdomain'] %>.<%= @config['app']['domain'] %>`) && PathPrefix(`/tower`)"
+      - "traefik.enable=true"
+      - "traefik.http.services.tower-<%= @name %>.loadbalancer.server.port=8080"
+      <%- if @config['ssl']['enabled'] -%>
+      - "traefik.http.routers.tower-<%= @name %>.entrypoints=websecure"
+      - "traefik.http.routers.tower-<%= @name %>.tls=true"
+      - "traefik.http.routers.tower-<%= @name %>.tls.certresolver=myresolver"
+      <%- else -%>
+      - "traefik.http.routers.tower-<%= @name %>.entrypoints=web"
+      <%- end -%>
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+
+  blog:
+    image: ghost:4-alpine
+    restart: always
+    expose:
+      - "2368"
+    environment:
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: root
+      database__connection__password: <%= @config['database']['password'] %>
+      database__connection__database: nagaexchange_news_db
+      url: "<%= ssl_helper('http') %>://<%= @config['app']['subdomain'] %>.<%= @config['app']['domain'] %>/blog"
+    labels:
+      - "traefik.http.routers.blog-<%= @name %>.rule=Host(`<%= @config['app']['subdomain'] %>.<%= @config['app']['domain'] %>`) && PathPrefix(`/blog`)"
+      - "traefik.enable=true"
+      - "traefik.http.services.blog-<%= @name %>.loadbalancer.server.port=2368"
+      <%- if @config['ssl']['enabled'] -%>
+      - "traefik.http.routers.blog-<%= @name %>.entrypoints=websecure"
+      - "traefik.http.routers.blog-<%= @name %>.tls=true"
+      - "traefik.http.routers.blog-<%= @name %>.tls.certresolver=myresolver"
+      <%- else -%>
+      - "traefik.http.routers.blog-<%= @name %>.entrypoints=web"
+      <%- end -%>
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  sonic:
+    restart: always
+    image: "<%= @config['images']['sonic'] %>"
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['sonic_token'] %>
+    env_file:
+      - ../config/sonic.env
+      - ../config/kaigara.env
+    entrypoint: /bin/sh -c "kaigara ./bin/sonic serve"
+    labels:
+      - "traefik.http.routers.sonic-<%= @name %>.rule=Host(`<%= @config['app']['subdomain'] %>.<%= @config['app']['domain'] %>`) && PathPrefix(`/`)"
+      - "traefik.enable=true"
+      - "traefik.http.services.sonic-<%= @name %>.loadbalancer.server.port=6969"
+      <%- if @config['ssl']['enabled'] -%>
+      - "traefik.http.routers.sonic-<%= @name %>.entrypoints=websecure"
+      - "traefik.http.routers.sonic-<%= @name %>.tls=true"
+      - "traefik.http.routers.sonic-<%= @name %>.tls.certresolver=myresolver"
+      <%- else -%>
+      - "traefik.http.routers.sonic-<%= @name %>.entrypoints=web"
+      <%- end -%>
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"

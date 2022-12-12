@@ -1,0 +1,47 @@
+- key:               eth-mainnet
+  name:              Ethereum
+  client:            ether                            # API client name.
+  server:            https://ethereum.nagaexchange.co       # Public Bitcoin node endpoint.
+  height:            15630306                         # Initial block number from which sync will be started.
+  min_confirmations: 3                                # Minimal confirmations needed for withdraw and deposit confirmation.
+  explorer:
+    address:         https://etherscan.com/address/#{address}
+    transaction:     https://etherscan.com/tx/#{txid}
+  status:            active
+  protocol:          ERC20
+
+- key:               bsc-mainnet
+  name:              Binance Smart Chain
+  client:            ether                            # API client name.
+  server:            http://147.139.198.194:3001      # Public Ethereum node endpoint. IMPORTANT: full syncmode.
+  height:            21719074                         # Initial block number from which sync will be started.
+  min_confirmations: 3                                # Minimal confirmations needed for withdraw and deposit confirmation.
+  explorer:
+    address:         https://bscscan.com/address/#{address}
+    transaction:     https://bscscan.com/tx/#{txid}
+  status:            active
+  protocol:          BEP20
+
+- key:               tron-mainnet
+  name:              Tron
+  client:            tron                             # API client name.
+  server:            https://tron.nagaexchange.co      # Public Bitcoin node endpoint.
+  height:            44590096                         # Initial block number from which sync will be started.
+  min_confirmations: 3                                # Minimal confirmations needed for withdraw and deposit confirmation.
+  explorer:
+    address:         https://tronscan.org/#/address/#{address}
+    transaction:     https://tronscan.org/#/transaction/tx/#{txid}
+  status:            active
+  protocol:          TRC20
+
+- key:               polygon-mainnet
+  name:              Polygon
+  client:            ether                             # API client name.
+  server:            https://polygon.nagaexchange.co      # Public Bitcoin node endpoint.
+  height:            33172760                         # Initial block number from which sync will be started.
+  min_confirmations: 3                                # Minimal confirmations needed for withdraw and deposit confirmation.
+  explorer:
+    address:         https://polygonscan.com/address/#{address}
+    transaction:     https://polygonscan.com/tx/#{txid}
+  status:            active
+  protocol:          Polygon-ERC20

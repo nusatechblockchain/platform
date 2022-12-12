@@ -1,0 +1,195 @@
+version: '3.6'
+
+x-daemon: &exchange-daemon
+  image: "<%= @config['images']['exchange'] %>"
+  restart: always
+  env_file:
+    - ../config/exchange.env
+    - ../config/kaigara.env
+  volumes:
+    - ../config/exchange/seed:/opt/exchange/config/seed
+    - ../config/exchange/management_api_v1.yml:/home/app/config/management_api.yml
+    - ../config/exchange/plugins.yml:/home/app/config/plugins.yml
+    - ../config/exchange/abilities.yml:/home/app/config/abilities.yml
+  logging:
+    driver: "json-file"
+    options:
+        max-size: "50m"
+
+services:
+  blockchain:
+    << : *exchange-daemon
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['exchange_crypto_token'] %>
+    command: bash -c "bin/link_config && kaigara bundle exec ruby lib/daemons/daemons.rb blockchain"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  cron_job:
+    << : *exchange-daemon
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['exchange_crypto_token'] %>
+    command: bash -c "bin/link_config && kaigara bundle exec ruby lib/daemons/daemons.rb cron_job"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  deposit:
+    << : *exchange-daemon
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['exchange_crypto_token'] %>
+    command: bash -c "bin/link_config && kaigara bundle exec ruby lib/daemons/daemons.rb deposit"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  upstream:
+    << : *exchange-daemon
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['exchange_upstream_token'] %>
+    command: bash -c "bin/link_config && kaigara bundle exec ruby lib/daemons/daemons.rb upstream"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  deposit_coin_address:
+    << : *exchange-daemon
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['exchange_crypto_token'] %>
+    command: bash -c "bin/link_config && kaigara bundle exec ruby lib/daemons/amqp_daemon.rb deposit_coin_address"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  withdraw_coin:
+    << : *exchange-daemon
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['exchange_crypto_token'] %>
+    command: bash -c "bin/link_config && kaigara bundle exec ruby lib/daemons/amqp_daemon.rb withdraw_coin"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  influx_writer:
+    << : *exchange-daemon
+    environment:
+      - VAULT_TOKEN=<%= @config['vault']['exchange_crypto_token'] %>
+    command: bash -c "bin/link_config && kaigara bundle exec ruby lib/daemons/amqp_daemon.rb influx_writer"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  rango:
+    restart: always
+    image: "<%= @config['images']['rango'] %>"
+    env_file:
+      - ../config/rango.env
+      - ../config/kaigara.env
+    command: kaigara ./rango
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  order_processor:
+    << : *exchange-daemon
+    environment:
+    - VAULT_TOKEN=${EXCHANGE_MATCHING_VAULT_TOKEN}
+    command: bash -c "bundle exec ruby lib/daemons/amqp_daemon.rb order_processor"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  matching:
+    << : *exchange-daemon
+    environment:
+    - VAULT_TOKEN=${EXCHANGE_MATCHING_VAULT_TOKEN}
+    command: bash -c "bundle exec ruby lib/daemons/amqp_daemon.rb matching"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  trade_executor:
+    << : *exchange-daemon
+    environment:
+    - VAULT_TOKEN=${EXCHANGE_MATCHING_VAULT_TOKEN}
+    command: bash -c "bundle exec ruby lib/daemons/amqp_daemon.rb trade_executor"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  mailer:
+    restart: always
+    image: "<%= @config['images']['account'] %>"
+    environment:
+      - ACCOUNT_VAULT_TOKEN=<%= @config['vault']['account_token'] %>
+    env_file:
+      - ../config/account.env
+      - ../config/kaigara.env
+    volumes:
+      -  ../config/secrets:/secrets:ro
+      -  ../config/mailer/templates:/home/app/app/views/postmaster
+      -  ../config/mailer.yml:/home/app/config/mailer.yml
+    command: bash -c "kaigara bin/mailer run"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  applogic_sidekiq:
+    restart: always
+    image: "<%= @utils['images']['applogic'] %>"
+    env_file:
+      - ../config/account.env
+      - ../config/kaigara.env
+    volumes:
+      - ../config/applogic/management_api_v2.yml:/home/app/config/management_api_v2.yml
+      - ../config/applogic/schedule.yml:/home/app/config/schedule.yml
+    command: bash -c "kaigara bundle exec sidekiq"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  account_sidekiq:
+    restart: always
+    image: "<%= @config['images']['account'] %>"
+    env_file:
+      - ../config/account.env
+      - ../config/kaigara.env
+    volumes:
+      - ../config/secrets:/secrets:ro
+      - ../config/account/seeds.yml:/home/app/config/seeds.yml
+      - ../config/account/account.yml:/home/app/config/account.yml
+      - ../config/account/authz_rules.yml:/home/app/config/authz_rules.yml
+      - ../config/account/management_api.yml:/home/app/config/management_api.yml
+    command: bash -c "kaigara bundle exec sidekiq"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+  listener:
+    restart: always
+    image: "<%= @utils['images']['applogic'] %>"
+    env_file:
+      - ../config/applogic.env
+      - ../config/kaigara.env
+    volumes:
+      - ../config/applogic/management_api_v2.yml:/home/app/config/management_api_v2.yml
+    command: bash -c "kaigara bundle exec rake event_api_listener"
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"

@@ -1,0 +1,141 @@
+---
+app:
+  name: naga
+  domain: nagaexchange.co.id
+  subdomain: app
+  show_landing: true
+  nagaexchange_addr: https://app.nagaexchange.co.id
+  wizard_enabled: false
+render_protect: false
+csrfEnabled: true
+ssl:
+  enabled: true
+  email: support@nagaexchange.co.id
+updateVersions: false
+images:
+  exchange: quay.io/koinku/exchange:latest
+  account: quay.io/koinku/account
+  sonic: quay.io/koinku/sonic
+  tower: quay.io/koinku/admin
+  rango: quay.io/koinku/socket
+  mobile: quay.io/koinku/mobile
+vendor:
+  frontend: git@github.com:nusatechblockchain/frontend.git
+sapuma:
+  api_endpoint: https://project.nagaexchange.id/api
+  key: chn2QEA92LgA
+  secret: eyJpdiI6IjY3UkRaeWNHdHJvbkxxbzBkNXo3WlE9PSIsInZhbHVlIjoiTDI3b2FhRkwyZk9FYituR2QwdmpvZz09IiwibWFjIjoiNWMzZGNlYjQxMjY3YzI1MzhlNDhkNWZmNzlmNzIwNDA5ZTg0MzBiYjUxODdkZWY5ODI3ZTgwNzBmOTk5OWMzMSIsInRhZyI6IiJ9
+kyc:
+  provider: local
+  authorization_token: changeme
+  sandbox_mode: true
+  api_endpoint: https://api.kycaid.com/
+vault:
+  root_token: s.sVNHOH1qPUm01Wwmnci7uR4g
+  exchange_rails_token: s.ywcAzblDQABum4LkIhY76HaS
+  exchange_crypto_token: s.eYgwHrCVCRTS33Jnmy7PtiwL
+  exchange_upstream_token: s.Wb5k62hkKKIOx2vGK5oq1W0T
+  exchange_matching_token: s.Gw5MG6p3foXBpufTz0i6G2VI
+  account_token: s.YkyDvUagt4WOL8UhYO9paD0D
+  finex_engine_token: s.G0rasHAP2NNMk0lzw1ijavc5
+  kaigara_token: s.Bh8hIJLhRAjiLlD3g2P66fTM
+  sonic_token: s.FvlOZ9UEPld34C8cKqqWonqp
+database:
+  host: db
+  adapter: mysql
+  port: 3306
+  user: root
+  password: FMNe0SBi4CsA9A7B
+storage:
+  provider: Google
+  bucketName: naga_exchange
+  region: asia-southeast2(Jakarta)
+  endpoint: https://console.cloud.google.com/storage/browser/naga_exchange
+  accessKey: GOOGBVFNDQ5NTD7P2IKUB2SV
+  secretKey: lws9LRUusAF3KWkI0Ji4jOxiEL0Mxx+x14baAm3+
+  signatureVersion: '2'
+  uploadMinSize: 1
+  uploadMaxSize: 20
+twilio:
+  enabled: true
+  phone_number: "+16306426931"
+  account_sid: ACa073723d08948558d6fa960419415892
+  auth_token: 8528dadce5ccdd3536214e8918d4f0cf
+gaTrackerKey: ''
+captcha:
+  type: geetest
+  siteKey: e1fb367dcff9e97995b6fa17f1c00b20
+  secretKey: 6ade24efc8bbfb94e3513ed3481a4b32
+smtp:
+  host: mail.smtp2go.com
+  port: 587
+  user: nagaexchange
+  password: Jakarta2020
+  sender_email: noreply@nagaexchange.co.id
+  sender_name: Nagaexchange
+  sender_logo: https://images.glints.com/unsafe/glints-dashboard.s3.amazonaws.com/company-logo/a2ba38d7b40d612ba48b9c4479f42e72.png
+  authentication: cram_md5
+wallets:
+  eth:
+  - kind: deposit
+    address: changeme
+    max_balance: 0.0
+    secret: changeme
+  - kind: hot
+    address: changeme
+    max_balance: 100.0
+    secret: changeme
+  - kind: warm
+    address: changeme
+    max_balance: 1000.0
+    secret: changeme
+  btc:
+  - kind: deposit
+    address: changeme
+    max_balance: 0.0
+  - kind: hot
+    address: changeme
+    max_balance: 100.0
+  - kind: warm
+    address: changeme
+    max_balance: 1000.0
+parity:
+  network: kovan
+  address: parity
+  rpcport: 8545
+  port: 30303
+bitcoind:
+  enabled: false
+  rpcuser: admin
+  rpcpassword: changeme
+  address: bitcoind
+  network: testnet
+  rpcport: 18332
+  port: 18333
+litecoind:
+  rpcuser: admin
+  rpcpassword: changeme
+  address: litecoind
+  network: testnet
+  rpcport: 19332
+  port: 19335
+electrumd_btc:
+  user: nagaexchange
+  password: changeme
+  wallet_passphrase: luc1d1tyc0m3b@ck
+  testnet: true
+  segwit: false
+electrumd_ltc:
+  user: nagaexchange
+  password: changeme
+  wallet_passphrase: th3l3ss1kn0wth3b3tt3r
+  testnet: true
+  segwit: false
+terraform:
+  credentials: "~/safe/nagaexchange.json"
+  project: example-nagaexchange
+  region: europe-west4
+  zone: europe-west4-a
+  instance_name: nagaexchange-cloud
+  machine_type: n1-standard-4
+  image: debian-cloud/debian-9

@@ -1,0 +1,17 @@
+# Be sure to run "bin/install_plugins" when you modify this file.
+#
+# This file is used for listing Exchange plugins.
+# The plugins must be listed as an array. Each element of array described the plugin using the next variables:
+#
+#   * name
+#     Mandatory. Specify plugin name. The name must be compatible with filesystem rules.
+#
+#   * git
+#     Mandatory. Specify Git repository URL.
+#
+#   * commit
+#     Mandatory. Specify commit hash which Exchange will checkout via "bin/install_plugins".
+#
+#   * require
+#       Optional. Specify relative path to file from vendor/plugins which should be required by Exchange.
+#       You may set this value to "false" if you don't want Exchange to require the plugin.

@@ -1,0 +1,92 @@
+- id:                     idr
+  name:                   Rupiah
+  type:                   fiat
+  status:                 enabled
+  precision:              0
+  position:               1
+  icon_url:               https://s2.coinmarketcap.com/static/img/coins/128x128/4702.png
+
+- id:                     eth
+  name:                   Ethereum
+  type:                   coin
+  status:                 enabled
+  precision:              8
+  position:               2
+  icon_url:               https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png
+  networks:
+    - blockchain_key: eth-mainnet
+      base_factor: 1_000_000_000_000_000_000
+
+- id:                     bnb
+  name:                   Binance Coin
+  type:                   coin
+  status:                 enabled
+  precision:              8
+  position:               3
+  icon_url:               https://s2.coinmarketcap.com/static/img/coins/128x128/1839.png
+  networks:
+    - blockchain_key: bsc-mainnet
+      base_factor: 1_000_000_000_000_000_000
+
+- id:                     trx
+  name:                   Tron
+  type:                   coin
+  status:                 enabled
+  precision:              8
+  position:               4
+  icon_url:               https://s2.coinmarketcap.com/static/img/coins/128x128/1958.png
+  networks:
+    - blockchain_key: tron-mainnet
+      base_factor: 1_000_000
+
+
+- id:                     matic
+  name:                   Polygon
+  type:                   coin
+  status:                 enabled
+  precision:              8
+  position:               5
+  icon_url:               https://s2.coinmarketcap.com/static/img/coins/128x128/3890.png
+  networks:
+    - blockchain_key: polygon-mainnet
+      base_factor: 1_000_000_000_000_000_000
+
+- id:                     usdt
+  name:                   Tether USD
+  type:                   coin
+  status:                 enabled
+  precision:              8
+  position:               6
+  icon_url:               https://s2.coinmarketcap.com/static/img/coins/128x128/825.png
+  networks:
+    - blockchain_key: eth-mainnet
+      parent_id: eth
+      base_factor: 1_000_000_000_000_000_000
+      options:
+        gas_limit: 21_000
+        gas_price: 5_000_000_000
+        erc20_contract_address: '0xdAC17F958D2ee523a2206206994597C13D831ec7'
+
+    - blockchain_key: tron-mainnet
+      base_factor: 1_000_000
+      parent_id: trx
+      options:
+        gas_limit: 21_000
+        gas_price: 5_000_000_000
+        trc20_contract_address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+
+- id:                     jst
+  name:                   JUST
+  type:                   coin
+  status:                 enabled
+  precision:              8
+  position:               5
+  icon_url:               https://s2.coinmarketcap.com/static/img/coins/128x128/5488.png
+  networks:
+    - blockchain_key: tron-mainnet
+      base_factor: 1_000_000_000_000_000_000
+      parent_id: trx
+      options:
+        gas_limit: 21_000
+        gas_price: 5_000_000_000
+        trc20_contract_address: 'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9'
